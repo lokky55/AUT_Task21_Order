@@ -52,5 +52,16 @@ public class Order {
         Assertions.assertEquals("Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время.", text.trim());  // или убираем пробелы методом .trim
     }
 
+    @Test
+    public void test1() {
+        driver.get("http://localhost:9999");
+        driver.findElement(By.cssSelector("span[data-test-id='name'] input")).sendKeys("Alex");
+        driver.findElement(By.className("checkbox")).click();
+        driver.findElement(By.tagName("button")).click();
+
+        String text = driver.findElement(By.className("input__sub")).getText();
+        Assertions.assertEquals("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы.", text);
+
+    }
 }
 
