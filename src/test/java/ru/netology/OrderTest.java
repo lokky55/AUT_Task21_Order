@@ -111,9 +111,9 @@ public class OrderTest {
 
         driver.findElement(By.cssSelector("span[data-test-id='name'] input"))
                 .sendKeys("Мари-Анет Римская-Корсакова");
-        driver.findElement(By.cssSelector("span[data-test-id='phone'] input")).sendKeys("89807133080");
+        driver.findElement(By.cssSelector("span[data-test-id='phone'] input")).sendKeys("+79807133080");
         driver.findElement(By.tagName("button")).click();
-        String text = driver.findElement(By.cssSelector("[data-test-id='agreement'] .checkbox__text")).getText();
+        String text = driver.findElement(By.cssSelector("[data-test-id='agreement'].input_invalid .checkbox__text")).getText();
         Assertions.assertEquals("Я соглашаюсь с условиями обработки и использования моих персональных данных " +
                 "и разрешаю сделать запрос в бюро кредитных историй", text);
     }
