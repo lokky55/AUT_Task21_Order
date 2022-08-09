@@ -28,40 +28,94 @@ public class Order {
         options.addArguments("--no-sandbox");
         options.addArguments("--headless");
         driver = new ChromeDriver(options);
+        driver.get("http://localhost:9999"); // открываем браузер
     }
 
     @AfterEach
-    void teardown() {
+    void quitFromBrowser() {
         driver.quit();
     }
 
     @Test
-    public void test() {
-        driver.get("http://localhost:9999"); // открываем браузер
+    public void shouldBeSuccessOrderOfCard() {
 
-        driver.findElement(By.cssSelector("span[data-test-id='name'] input")).sendKeys("Александр");     // находим первый элемент - поле ввода имени, и вводим в него имя Андрей (командой sendkeys)
-        driver.findElement(By.cssSelector("span[data-test-id='phone'] input")).sendKeys("+79807133080"); // заполняем следующее поле заявки - телефон
-        driver.findElement(By.className("checkbox")).click(); // следующее поле - чекбокс, командой click ставим в нем галочку
-        driver.findElement(By.tagName("button")).click(); // следующее поле - кнопка ОТПРАВИТЬ - нажимаем ее той же командой click
+        driver.findElement(By.cssSelector("[data-test-id='name'] input"))
+                .sendKeys("Мари-Анет Римская-Корсакова");
+        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+79807133080");
+        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
+        driver.findElement(By.tagName("button")).click();
 
         // теперь необходимо проверить что открылась страница с сообщением об успешной отправке заполненной формы
-
-        String text = driver.findElement(By.className("paragraph")).getText(); // ищем по части выражения
-
-//        Assertions.assertEquals("  Ваша заявка успешно отправлена!", text);
-        Assertions.assertEquals("Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время.", text.trim());  // или убираем пробелы методом .trim
+        // ищем по части выражения
+        String text = driver.findElement(By.cssSelector("[data-test-id='order-success']")).getText();
+        Assertions.assertEquals("Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время.",
+                text.trim());
     }
 
     @Test
-    public void test1() {
-        driver.get("http://localhost:9999");
-        driver.findElement(By.cssSelector("span[data-test-id='name'] input")).sendKeys("Alex");
-        driver.findElement(By.className("checkbox")).click();
+    public void shouldBeUnSuccessOrderBecauseOfInvalidName() {
+
+        driver.findElement(By.cssSelector("span[data-test-id='name'] input"))
+                .sendKeys("Alex");
+        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
         driver.findElement(By.tagName("button")).click();
+        String text = driver.findElement(By.cssSelector("[data-test-id='name'].input_invalid .input__sub")).getText();
+        Assertions.assertEquals("Имя и Фамилия указаные неверно. Допустимы только русские буквы," +
+                " пробелы и дефисы.", text);
+    }
 
-        String text = driver.findElement(By.className("input__sub")).getText();
-        Assertions.assertEquals("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы.", text);
+    @Test
+    public void shouldBeUnSuccessOrderBecauseOfInvalidPhone() {
 
+        driver.findElement(By.cssSelector("span[data-test-id='name'] input"))
+                .sendKeys("Мари-Анет Римская-Корсакова");
+        driver.findElement(By.cssSelector("span[data-test-id='phone'] input")).sendKeys("89807133080");
+        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
+        driver.findElement(By.tagName("button")).click();
+        String text = driver.findElement(By.cssSelector("[data-test-id='phone'].input_invalid .input__sub")).getText();
+        Assertions.assertEquals("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.", text);
+    }
+
+    @Test
+    public void shouldBeUnSuccessOrderBecauseOfMissedName() {
+
+        driver.findElement(By.cssSelector("span[data-test-id='phone'] input")).sendKeys("+79807133080");
+        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
+        driver.findElement(By.tagName("button")).click();
+        String text = driver.findElement(By.cssSelector("[data-test-id='name'].input_invalid .input__sub")).getText();
+        Assertions.assertEquals("Поле обязательно для заполнения", text);
+    }
+
+    @Test
+    public void shouldBeUnSuccessOrderBecauseOfMissedPhone() {
+
+        driver.findElement(By.cssSelector("span[data-test-id='name'] input"))
+                .sendKeys("Мари-Анет Римская-Корсакова");
+        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
+        driver.findElement(By.tagName("button")).click();
+        String text = driver.findElement(By.cssSelector("[data-test-id='phone'].input_invalid .input__sub")).getText();
+        Assertions.assertEquals("Поле обязательно для заполнения", text);
+    }
+
+    @Test
+    public void shouldBeUnSuccessOrderBecauseOfMissedNameAndPhone() {
+
+        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
+        driver.findElement(By.tagName("button")).click();
+        String text = driver.findElement(By.cssSelector("[data-test-id='name'].input_invalid .input__sub")).getText();
+        Assertions.assertEquals("Поле обязательно для заполнения", text);
+    }
+
+    @Test
+    public void shouldBeUnSuccessOrderBecauseOfMissedCheckboxAgreement() {
+
+        driver.findElement(By.cssSelector("span[data-test-id='name'] input"))
+                .sendKeys("Мари-Анет Римская-Корсакова");
+        driver.findElement(By.cssSelector("span[data-test-id='phone'] input")).sendKeys("89807133080");
+        driver.findElement(By.tagName("button")).click();
+        String text = driver.findElement(By.cssSelector("[data-test-id='agreement'] .checkbox__text")).getText();
+        Assertions.assertEquals("Я соглашаюсь с условиями обработки и использования моих персональных данных " +
+                "и разрешаю сделать запрос в бюро кредитных историй", text);
     }
 }
 
