@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.chrome.ChromeOptions;
 
-public class Order {
+public class OrderTest {
     private WebDriver driver;
 
     @BeforeAll  // запускается один раз перед всеми тестами
